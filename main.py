@@ -10,6 +10,11 @@ def compress_image(input_path: Path):
     base_dir = input_path.parent
     file_sizes = {}
 
+    # オリジナル画像のファイルサイズを取得して比較に含める
+    original_size = input_path.stat().st_size
+    file_sizes["Original"] = original_size
+    print(f"Original image: {input_path} (size: {original_size} bytes)")
+
     for cr in compression_ratios:
         quality = max(1, 100 - cr)
         output_path = base_dir / f"comp-{cr}.jpg"
@@ -20,12 +25,13 @@ def compress_image(input_path: Path):
             f"Saved {output_path} (compression ratio={cr}%, quality={quality}, size={size} bytes)"
         )
 
-    compression_sorted = sorted(file_sizes.keys())
-    sizes = [file_sizes[cr] for cr in compression_sorted]
+    # x軸のラベルを "Original", "10%", "20%", ... の順に設定
+    x_labels = ["Original"] + [f"{cr}%" for cr in compression_ratios]
+    sizes = [file_sizes["Original"]] + [file_sizes[cr] for cr in compression_ratios]
 
     plt.figure(figsize=(8, 6))
-    plt.plot(compression_sorted, sizes, marker="o")
-    plt.xlabel("Compression Ratio (%)")
+    plt.plot(x_labels, sizes, marker="o")
+    plt.xlabel("Image Type / Compression Ratio")
     plt.ylabel("File Size (bytes)")
     plt.grid(True)
 
